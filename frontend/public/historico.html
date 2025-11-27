@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Atividades FitTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .container { max-width: 500px; padding: 20px; }
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .header-section h2 { margin: 0; }
+        
+        .activity-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-left: 5px solid #007BFF; /* Destaque lateral para simular o design do wireframe */
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            cursor: pointer; /* Indica que é clicável para Editar/Excluir (RF005) */
+            transition: background-color 0.2s;
+        }
+
+        .activity-item:hover {
+            background-color: #e2e6ea;
+        }
+
+        .activity-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 5px;
+        }
+
+        .activity-details {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .activity-date {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: #adb5bd;
+        }
+
+        /* Destaque para cores de atividades específicas (opcional) */
+        .corrida { border-left-color: #FF416C; }
+        .caminhada { border-left-color: #20c997; }
+        .musculacao { border-left-color: #fd7e14; }
+        .yoga { border-left-color: #6f42c1; }
+    </style>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+<script>
+fetch('nav-bar.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('nav-placeholder').innerHTML = data;
+    });
+</script>
+    <div class="container">
+        <div class="header-section">
+            <h2>Histórico de Atividades</h2>
+            <a href="dashboard.html" style="text-decoration: none; color: #007BFF; font-weight: bold;">← Dashboard</a>
+        </div>
+        
+        <div id="historicoList">
+            <div class="activity-item corrida" data-activity-id="1" onclick="selectActivity(this)">
+                <div class="activity-title">Corrida</div>
+                <div class="activity-details">Duração: 45 min | Distância: 5.2 km</div>
+                <span class="activity-date">01 de Outubro de 2025</span>
+            </div>
+
+            <div class="activity-item caminhada" data-activity-id="2" onclick="selectActivity(this)">
+                <div class="activity-title">Caminhada</div>
+                <div class="activity-details">Duração: 60 min | Distância: 3.5 km</div>
+                <span class="activity-date">28 de Setembro de 2025</span>
+            </div>
+
+            <div class="activity-item musculacao" data-activity-id="3" onclick="selectActivity(this)">
+                <div class="activity-title">Musculação</div>
+                <div class="activity-details">Duração: 80 min | Calorias Estimadas: 500 kcal</div>
+                <span class="activity-date">25 de Setembro de 2025</span>
+            </div>
+
+            <div class="activity-item yoga" data-activity-id="4" onclick="selectActivity(this)">
+                <div class="activity-title">Yoga (RF006)</div>
+                <div class="activity-details">Duração: 40 min</div>
+                <span class="activity-date">20 de Setembro de 2025</span>
+            </div>
+            
+        </div>
+        
+        <p style="text-align: center; margin-top: 30px; font-size: 0.9em; color: #777;">
+            Clique em um registro para Editar ou Excluir (RF005).
+        </p>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../src/api/APIClient.js"></script>
+    <script src="../src/controllers/Controllers.js"></script>
+    <script src="../src/utils/Utilidades.js"></script>
+    <script>
+        // Carrega atividades ao abrir a página
+        async function carregarAtividades() {
+            try {
+                // Inicializa autenticação
+                const autenticado = await authController.inicializar();
+                if (!autenticado) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const resultado = await atividadesController.listar();
+                const historicoList = document.getElementById('historicoList');
+                historicoList.innerHTML = '';
+
+                if (resultado.atividades.length === 0) {
+                    historicoList.innerHTML = '<p style="text-align: center; color: #999;">Nenhuma atividade registrada</p>';
+                    return;
+                }
+
+                resultado.atividades.forEach(atividade => {
+                    const item = document.createElement('div');
+                    item.className = `activity-item ${atividade.tipo}`;
+                    item.dataset.activityId = atividade.id;
+
+                    item.innerHTML = `
+                        <div class="activity-title">${util.formatarTipoAtividade(atividade.tipo)}</div>
+                        <div class="activity-details">
+                            ${atividade.duracao ? `Duração: ${atividade.duracao} min` : ''}
+                            ${atividade.distancia ? `| Distância: ${util.formatarNumero(atividade.distancia, 2)} km` : ''}
+                            ${atividade.calorias_queimadas ? `| Calorias: ${util.formatarNumero(atividade.calorias_queimadas)} kcal` : ''}
+                        </div>
+                        <span class="activity-date">${util.formatarData(atividade.data_atividade)}</span>
+                        <div style="margin-top: 10px; display: flex; gap: 10px;">
+                            <button class="btn-editar" onclick="editarAtividade(${atividade.id})">✏️ Editar</button>
+                            <button class="btn-deletar" onclick="deletarAtividade(${atividade.id})">🗑️ Deletar</button>
+                        </div>
+                    `;
+                    
+                    historicoList.appendChild(item);
+                });
+            } catch (erro) {
+                console.error('Erro ao carregar atividades:', erro);
+                document.getElementById('historicoList').innerHTML = '<p style="color: red;">Erro ao carregar atividades</p>';
+            }
+        }
+
+        async function editarAtividade(id) {
+            try {
+                const atividade = await atividadesController.obter(id);
+                
+                const novoTipo = prompt('Tipo de atividade:', atividade.tipo);
+                if (!novoTipo) return;
+
+                const novaDuracao = prompt('Duração (minutos):', atividade.duracao);
+                if (!novaDuracao) return;
+
+                const novaDistancia = prompt('Distância (km):', atividade.distancia);
+                if (novaDistancia === null) return;
+
+                await atividadesController.atualizar(id, {
+                    tipo: novoTipo,
+                    duracao: Number.parseInt(novaDuracao),
+                    distancia: Number.parseFloat(novaDistancia) || null
+                });
+
+                util.mostrarSucesso('Atividade atualizada com sucesso!');
+                carregarAtividades();
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Erro ao editar atividade');
+            }
+        }
+
+        async function deletarAtividade(id) {
+            if (!util.confirmar('Tem certeza que deseja deletar esta atividade?')) {
+                return;
+            }
+
+            try {
+                await atividadesController.deletar(id);
+                util.mostrarSucesso('Atividade deletada com sucesso!');
+                carregarAtividades();
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Erro ao deletar atividade');
+            }
+        }
+
+        document.querySelector('a[href="dashboard.html"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'dashboard.html';
+        });
+
+        // Inicializa ao carregar a página
+        window.addEventListener('load', carregarAtividades);
+    </script>
+</body>
+</html>

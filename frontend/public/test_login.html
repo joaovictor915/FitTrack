@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .container { background: #f5f5f5; padding: 20px; border-radius: 8px; }
+        button { padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #333; color: #0f0; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Login API</h1>
+        
+        <div>
+            <h3>Email:</h3>
+            <input type="email" id="email" value="teste@teste.com" style="width: 100%; padding: 8px;">
+        </div>
+
+        <div style="margin-top: 15px;">
+            <h3>Senha:</h3>
+            <input type="password" id="senha" value="Teste1234!" style="width: 100%; padding: 8px;">
+        </div>
+
+        <button onclick="testarLogin()" style="margin-top: 20px;">Testar Login</button>
+        <button onclick="limparLogs()" style="margin-top: 20px; background: #6c757d;">Limpar Logs</button>
+
+        <h3>Resposta:</h3>
+        <pre id="response">Clique em "Testar Login" para começar...</pre>
+    </div>
+
+    <script src="../src/api/APIClient.js"></script>
+    <script src="../src/controllers/Controllers.js"></script>
+    <script src="../src/utils/Utilidades.js"></script>
+    <script>
+        async function testarLogin() {
+            const email = document.getElementById('email').value;
+            const senha = document.getElementById('senha').value;
+            const responseDiv = document.getElementById('response');
+
+            responseDiv.innerHTML = `<span class="error">Enviando requisição...</span>`;
+
+            try {
+                console.log(`[TEST] Iniciando login com email: ${email}`);
+                
+                const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, senha })
+                });
+
+                console.log(`[TEST] Status da resposta: ${response.status}`);
+                console.log(`[TEST] Headers:`, response.headers);
+
+                const dados = await response.json();
+
+                if (response.ok) {
+                    responseDiv.innerHTML = `
+                        <span class="success">✅ Login bem-sucedido!</span>
+                        <br><br>
+                        ${JSON.stringify(dados, null, 2)}
+                    `;
+                } else {
+                    responseDiv.innerHTML = `
+                        <span class="error">❌ Erro ${response.status}:</span>
+                        <br><br>
+                        ${JSON.stringify(dados, null, 2)}
+                    `;
+                }
+            } catch (erro) {
+                console.error(`[TEST] Erro na requisição:`, erro);
+                responseDiv.innerHTML = `
+                    <span class="error">❌ Erro ao conectar com a API:</span>
+                    <br>
+                    ${erro.message}
+                    <br><br>
+                    Verifique:
+                    <ul>
+                        <li>Se o servidor está rodando em http://127.0.0.1:5000</li>
+                        <li>Se há erros no console do navegador (F12)</li>
+                        <li>Se a URL está correta</li>
+                    </ul>
+                `;
+            }
+        }
+
+        function limparLogs() {
+            document.getElementById('response').innerHTML = 'Clique em "Testar Login" para começar...';
+        }
+
+        // Testa automaticamente ao carregar
+        console.log('[TEST] Página de teste carregada');
+    </script>
+</body>
+</html>

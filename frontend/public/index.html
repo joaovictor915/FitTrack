@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>CRUD Produtos</title>
+  <style>
+    input, button { margin: 2px; }
+    ul { list-style: none; padding: 0; }
+    li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <h1>CRUD Produtos</h1>
+
+  <h2>Criar Produto</h2>
+  <input id="nome" placeholder="Nome">
+  <input id="preco" placeholder="Preço" type="number" step="0.01">
+  <button onclick="criarProduto()">Criar</button>
+
+  <h2>Buscar Produto por ID</h2>
+  <input id="buscarId" placeholder="ID">
+  <button onclick="buscarPorId()">Buscar</button>
+  <div id="produto-buscado"></div>
+
+  <h2>Lista de Produtos</h2>
+  <ul id="lista-produtos"></ul>
+
+  <script>
+    const API = 'http://localhost:5000/produtos'; // ajuste se necessário
+
+    function carregarProdutos() {
+      fetch(API)
+        .then(r => r.json())
+        .then(produtos => {
+          const ul = document.getElementById('lista-produtos');
+          ul.innerHTML = '';
+          produtos.forEach(p => {
+            ul.innerHTML += `
+              <li>
+                <b>${p.nome}</b> - R$${p.preco}
+                <button onclick="deletarProduto(${p.id})">Excluir</button>
+                <button onclick="mostrarEdicao(${p.id}, '${p.nome}', ${p.preco})">Editar</button>
+              </li>
+            `;
+          });
+        });
+    }
+
+    function criarProduto() {
+      const nome = document.getElementById('nome').value;
+      const preco = document.getElementById('preco').value;
+      fetch(API, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({nome, preco})
+      }).then(() => {
+        carregarProdutos();
+        document.getElementById('nome').value = '';
+        document.getElementById('preco').value = '';
+      });
+    }
+
+    function deletarProduto(id) {
+      fetch(`${API}/${id}`, { method: 'DELETE' })
+        .then(carregarProdutos);
+    }
+
+    function mostrarEdicao(id, nome, preco) {
+      const novoNome = prompt('Novo nome:', nome);
+      const novoPreco = prompt('Novo preço:', preco);
+      if (novoNome && novoPreco) {
+        fetch(`${API}/${id}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({nome: novoNome, preco: novoPreco})
+        }).then(carregarProdutos);
+      }
+    }
+
+    function buscarPorId() {
+      const id = document.getElementById('buscarId').value;
+      fetch(`${API}/${id}`)
+        .then(r => r.json())
+        .then(p => {
+          document.getElementById('produto-buscado').innerText =
+            p.nome ? `Nome: ${p.nome} | Preço: R$${p.preco}` : 'Produto não encontrado';
+        });
+    }
+
+    carregarProdutos();
+  </script>
+</body>
+</html>

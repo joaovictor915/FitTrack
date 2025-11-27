@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil FitTrack</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilo específico para o perfil */
+        .container { max-width: 500px; }
+    </style>
+</head>
+<body>
+
+    <div id="nav-placeholder"></div>
+<script>
+fetch('nav-bar.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('nav-placeholder').innerHTML = data;
+    });
+</script>
+    <div class="container">
+        <div class="welcome-header">
+            <h2>Meu Perfil (RF002)</h2>
+            <a href="dashboard.html" style="text-decoration: none; color: #007BFF; font-weight: bold;">← Voltar</a>
+        </div>
+        
+        <form id="perfilForm">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" name="nome" value="Cecília Fernandes" required>
+            </div>
+
+            <div class="form-group">
+                <label for="idade">Idade</label>
+                <input type="number" id="idade" name="idade" value="25">
+            </div>
+
+            <div class="form-group">
+                <label for="peso">Peso (kg)</label>
+                <input type="number" id="peso" name="peso" step="0.1" value="65.5">
+            </div>
+
+            <div class="form-group">
+                <label for="altura">Altura (cm)</label>
+                <input type="number" id="altura" name="altura" value="170">
+            </div>
+
+            <div class="form-group">
+                <label for="sexo">Sexo</label>
+                <select id="sexo" name="sexo">
+                    <option value="f">Feminino</option>
+                    <option value="m">Masculino</option>
+                    <option value="o">Outro</option>
+                </select>
+            </div>
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../src/api/APIClient.js"></script>
+    <script src="../src/controllers/Controllers.js"></script>
+    <script src="../src/utils/Utilidades.js"></script>
+    <script>
+        // Carrega dados do perfil ao abrir a página
+        async function carregarPerfil() {
+            try {
+                // Inicializa autenticação
+                const autenticado = await authController.inicializar();
+                if (!autenticado) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const usuario = authController.usuarioAtual;
+                if (usuario) {
+                    document.getElementById('nome').value = usuario.nome || '';
+                    document.getElementById('idade').value = usuario.idade || '';
+                    document.getElementById('peso').value = usuario.peso || '';
+                    document.getElementById('altura').value = usuario.altura || '';
+
+                    // Calcula e exibe IMC se tiver dados
+                    if (usuario.peso && usuario.altura) {
+                        const imc = util.calcularIMC(usuario.peso, usuario.altura);
+                        const classificacao = util.classificarIMC(imc);
+                        document.querySelector('.welcome-header').insertAdjacentHTML('afterend', `
+                            <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+                                <strong>IMC:</strong> ${imc} - ${classificacao}
+                            </div>
+                        `);
+                    }
+                }
+            } catch (erro) {
+                console.error('Erro ao carregar perfil:', erro);
+            }
+        }
+
+        // Lógica de Edição de Perfil
+        document.getElementById('perfilForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value.trim();
+            const idade = parseInt(document.getElementById('idade').value) || null;
+            const peso = parseFloat(document.getElementById('peso').value) || null;
+            const altura = parseInt(document.getElementById('altura').value) || null;
+
+            if (!nome) {
+                util.mostrarErro('Nome é obrigatório');
+                return;
+            }
+
+            try {
+                const resultado = await authController.atualizarPerfil({
+                    nome,
+                    idade,
+                    peso,
+                    altura
+                });
+                util.mostrarSucesso('Perfil atualizado com sucesso!');
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Erro ao atualizar perfil');
+            }
+        });
+
+        document.querySelector('a[href="dashboard.html"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = 'dashboard.html';
+        });
+
+        // Inicializa ao carregar a página
+        window.addEventListener('load', carregarPerfil);
+    </script>
+</body>
+</html>

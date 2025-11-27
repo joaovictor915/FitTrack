@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login FitTrack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    
+    <div class="container">
+        <h1 class="logo">FitTrack</h1>
+        <h2>Acesse sua conta</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required placeholder="Seu e-mail cadastrado">
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required placeholder="Sua senha">
+            </div>
+
+            <p class="help-text recovery-link"><a href="#" id="recoveryLink">Esqueceu sua senha?</a></p>
+
+            <button type="submit">Entrar</button>
+
+            <p class="login-link">Não tem uma conta? <a href="cadastro.html">Crie sua conta</a></p>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../src/api/APIClient.js"></script>
+    <script src="../src/controllers/Controllers.js"></script>
+    <script src="../src/utils/Utilidades.js"></script>
+    <script>
+        // Lógica de Login Funcional
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+
+            if (!email || !senha) {
+                util.mostrarErro('Por favor, preencha todos os campos');
+                return;
+            }
+
+            try {
+                console.log('[Login] Iniciando login...');
+                const resultado = await authController.login(email, senha);
+                console.log('[Login] Resultado:', resultado);
+                util.mostrarSucesso('Login realizado com sucesso!');
+                
+                // Aguarda um pouco antes de redirecionar para dar tempo da UI atualizar
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 500);
+            } catch (erro) {
+                console.error('[Login] Erro capturado:', erro);
+                const mensagemErro = erro?.message || erro?.toString() || 'Falha no login desconhecida';
+                console.error('[Login] Mensagem de erro:', mensagemErro);
+                util.mostrarErro(mensagemErro);
+            }
+        });
+
+        document.getElementById('recoveryLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            util.mostrarErro('Funcionalidade de recuperação de senha ainda em desenvolvimento');
+        });
+    </script>
+</body>
+</html>

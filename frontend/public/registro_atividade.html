@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Atividade</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+<script>
+fetch('nav-bar.html')
+    .then(response => response.text())
+    .then(data => {
+        document.getElementById('nav-placeholder').innerHTML = data;
+    });
+</script>
+    <div class="container">
+        <h2>Registrar Atividade</h2>
+        <form id="registroAtividadeForm">
+            <div class="form-group">
+                <label for="tipoAtividade">Tipo de Atividade <span class="required">*</span></label>
+                <select id="tipoAtividade" name="tipoAtividade" required>
+                    <option value="">Selecione o Tipo</option>
+                    <option value="corrida">Corrida</option>
+                    <option value="caminhada">Caminhada</option>
+                    <option value="ciclismo">Ciclismo</option>
+                    <option value="musculacao">Musculação</option>
+                    <option value="natacao">Natação</option>
+                    <option value="artesmarciais">Artes Marciais</option>
+                    <option value="yoga">Yoga (Customizado RF006)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="duracao">Duração (minutos)</label>
+                <input type="number" id="duracao" name="duracao" min="1" max="9999" placeholder="Ex: 30">
+            </div>
+
+            <div class="form-group">
+                <label for="distancia">Distância (km)</label>
+                <input type="number" id="distancia" name="distancia" step="0.01" min="0" max="9999" placeholder="Ex: 5.5">
+            </div>
+
+            <div class="form-group">
+                <label for="intensidade">Intensidade</label>
+                <select id="intensidade" name="intensidade">
+                    <option value="">Selecione a Intensidade</option>
+                    <option value="baixa">Baixa</option>
+                    <option value="moderada">Moderada</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="calorias">Calorias (Estimadas)</label>
+                <input type="number" id="calorias" name="calorias" min="0" placeholder="Ex: 450">
+            </div>
+            
+            <button type="submit">Salvar Atividade</button>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../src/api/APIClient.js"></script>
+    <script src="../src/controllers/Controllers.js"></script>
+    <script src="../src/utils/Utilidades.js"></script>
+    <script>
+        // Inicializa autenticação
+        async function inicializarPagina() {
+            const autenticado = await authController.inicializar();
+            if (!autenticado) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Atualiza calorias estimadas quando mudam os valores
+            document.getElementById('tipoAtividade').addEventListener('change', calcularCalorias);
+            document.getElementById('duracao').addEventListener('input', calcularCalorias);
+            document.getElementById('intensidade').addEventListener('change', calcularCalorias);
+        }
+
+        function calcularCalorias() {
+            const tipo = document.getElementById('tipoAtividade').value;
+            const duracao = Number.parseInt(document.getElementById('duracao').value) || 0;
+            const intensidade = document.getElementById('intensidade').value || 'moderada';
+
+            if (!tipo || !duracao) return;
+
+            // Tabela de calorias por minuto
+            const tabelaCalorias = {
+                'corrida': { 'baixa': 8, 'moderada': 12, 'alta': 15 },
+                'caminhada': { 'baixa': 3.5, 'moderada': 5, 'alta': 7 },
+                'ciclismo': { 'baixa': 6, 'moderada': 10, 'alta': 14 },
+                'musculacao': { 'baixa': 5, 'moderada': 8, 'alta': 12 },
+                'natacao': { 'baixa': 7, 'moderada': 10, 'alta': 14 },
+                'artesmarciais': { 'baixa': 8, 'moderada': 12, 'alta': 16 },
+                'yoga': { 'baixa': 2, 'moderada': 4, 'alta': 6 }
+            };
+
+            const peso = authController.usuarioAtual?.peso || 70;
+            const caloriasBase = tabelaCalorias[tipo]?.[intensidade] || 5;
+            const calorias = Math.round((caloriasBase * duracao * peso) / 70);
+
+            document.getElementById('calorias').value = calorias;
+        }
+
+        // Lógica de submissão do formulário
+        document.getElementById('registroAtividadeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const tipo = document.getElementById('tipoAtividade').value;
+
+            if (!tipo) {
+                util.mostrarErro('Por favor, selecione o Tipo de Atividade');
+                return;
+            }
+
+            const duracao = Number.parseInt(document.getElementById('duracao').value) || null;
+            const distancia = Number.parseFloat(document.getElementById('distancia').value) || null;
+            const intensidade = document.getElementById('intensidade').value || 'moderada';
+
+            try {
+                const dataAtual = new Date().toISOString();
+
+                await atividadesController.criar({
+                    tipo,
+                    duracao,
+                    distancia,
+                    intensidade,
+                    data_atividade: dataAtual
+                });
+
+                util.mostrarSucesso('Atividade registrada com sucesso!');
+                document.getElementById('registroAtividadeForm').reset();
+                document.getElementById('calorias').value = '';
+
+                // Redireciona para histórico após 1 segundo
+                setTimeout(() => {
+                    window.location.href = 'historico.html';
+                }, 1000);
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Erro ao registrar atividade');
+            }
+        });
+
+        // Inicializa a página quando carrega
+        window.addEventListener('load', inicializarPagina);
+    </script>
+</body>
+</html>

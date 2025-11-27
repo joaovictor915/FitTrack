@@ -1,0 +1,78 @@
+<style>
+    .top-nav {
+        background-color: var(--primary-color); /* Fundo Azul */
+        color: white;
+        padding: 0 10px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        position: fixed; 
+        top: 0;
+        left: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+        height: 60px; /* Um pouco mais alta */
+        font-weight: 500;
+    }
+
+    .top-nav a {
+        color: white;
+        text-decoration: none;
+        padding: 8px 15px;
+        font-size: 1em;
+        border-bottom: 3px solid transparent; /* Para o hover/ativo */
+        transition: all 0.2s ease-in-out;
+    }
+
+    .top-nav a:hover, 
+    .top-nav a.active {
+        color: #f7f7f7;
+        border-bottom: 3px solid var(--accent-color); /* Destaque com cor vibrante */
+    }
+    
+    .logout-link {
+        color: #e9ecef !important;
+        font-size: 0.9em;
+        margin-left: 20px;
+        border-bottom: none !important;
+    }
+
+    .logout-link:hover {
+        color: var(--accent-color) !important;
+    }
+
+    /* Ajuste o padding do body para a barra fixa */
+    body {
+        padding-top: 80px !important; /* Aumenta para acomodar a barra de 60px + margem */
+    }
+</style>
+
+<div class="top-nav">
+    <a href="dashboard.html" class="nav-link">Início</a>
+    <a href="historico.html" class="nav-link">Histórico</a>
+    <a href="registro_atividade.html" class="nav-link">Registrar</a>
+    <a href="perfil.html" class="nav-link">Perfil</a>
+    <a href="login.html" class="nav-link logout-link" id="navLogout">Logout</a>
+</div>
+
+<script>
+    // Lógica para marcar o link ativo (opcional, mas ajuda na usabilidade)
+    document.addEventListener('DOMContentLoaded', () => {
+        const path = window.location.pathname.split('/').pop();
+        const links = document.querySelectorAll('.top-nav a.nav-link');
+        links.forEach(link => {
+            // Remove o tratamento de logout para evitar que ele seja marcado como 'active'
+            if (link.getAttribute('href') === path && !link.classList.contains('logout-link')) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Adiciona funcionalidade de logout (RF014)
+        document.getElementById('navLogout').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Sessão encerrada com segurança (Simulação RF014).');
+            window.location.href = 'login.html';
+        });
+    });
+</script>
