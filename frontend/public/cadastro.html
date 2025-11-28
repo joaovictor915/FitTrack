@@ -8,102 +8,104 @@
 </head>
 <body>
     <div id="nav-placeholder"></div>
-<script>
-fetch('nav-bar.html')
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById('nav-placeholder').innerHTML = data;
-    });
-</script>
+    <script>
+        fetch('nav-bar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
     <div class="container">
-        <h1 class="logo">FitTrack</h1>
+        <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50,85 C30,65 15,50 15,35 C15,25 25,20 35,20 C40,20 45,22 50,28 C55,22 60,20 65,20 C75,20 85,25 85,35 C85,50 70,65 50,85 Z" fill="#00C853" filter="url(#glow)"/>
+                <path d="M30,50 L40,60 L50,45 L60,60 L70,50" stroke="#00C853" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+            <h1 class="logo">FITTRACK</h1>
+        </div>
         <h2>Criar Conta FitTrack</h2>
         <form id="cadastroForm">
             <div class="form-group">
                 <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" name="nome" maxlength="60" required placeholder="Nome Completo">
             </div>
-
             <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email" maxlength="264" required placeholder="E-mail">
                 <p id="email-error" class="error-message"></p>
             </div>
-
             <div class="form-group">
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" name="senha" required placeholder="Senha (mín. 8 caracteres)">
                 <p class="help-text">Mín. 8 caracteres, letras, números e especial.</p>
             </div>
-
             <button type="submit" id="btnCadastrar" disabled>Cadastrar</button>
-
-            <p class="login-link">Já tem uma conta? <a href="#">Acesse sua conta</a></p>
+            <p class="login-link">Já tem uma conta? <a href="login.html">Acesse sua conta</a></p>
         </form>
     </div>
-
-    <!-- Scripts -->
-    <script src="../src/api/APIClient.js"></script>
-    <script src="../src/controllers/Controllers.js"></script>
-    <script src="../src/utils/Utilidades.js"></script>
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
     <script>
-        // Lógica de Cadastro Funcional
-        const form = document.getElementById('cadastroForm');
-        const btnCadastrar = document.getElementById('btnCadastrar');
-        const inputs = form.querySelectorAll('input[required]');
-
-        // Habilita botão apenas quando todos os campos estão preenchidos
-        form.addEventListener('input', () => {
-            const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
-            btnCadastrar.disabled = !allFilled;
-        });
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nomeInput = document.getElementById('nome');
-            const emailInput = document.getElementById('email');
-            const senhaInput = document.getElementById('senha');
-            const emailError = document.getElementById('email-error');
-
-            const nome = nomeInput.value.trim();
-            const email = emailInput.value.trim();
-            const senha = senhaInput.value;
-
-            // Validação de E-mail
-            if (!util.validarEmail(email)) {
-                emailError.textContent = 'Insira um e-mail válido.';
-                return;
-            } else {
-                emailError.textContent = '';
-            }
-
-            // Validação de Senha Forte
-            const validacaoSenha = util.validarSenha(senha);
-            if (!validacaoSenha.valido) {
-                util.mostrarErro(`Senha fraca: ${validacaoSenha.msg}`);
+        // Aguarda o carregamento completo de todos os scripts
+        window.addEventListener('load', function() {
+            // Verifica se util está disponível
+            if (typeof util === 'undefined') {
+                console.error('Utilidades não carregado! Verifique o caminho do arquivo.');
                 return;
             }
-
-            // Desabilita botão durante envio
-            btnCadastrar.disabled = true;
-
-            try {
-                await authController.registrar(nome, email, senha);
-                util.mostrarSucesso('Cadastro realizado com sucesso!');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
-            } catch (erro) {
-                util.mostrarErro(erro.message || 'Falha no cadastro');
-                btnCadastrar.disabled = false;
-            }
-        });
-
-        document.querySelector('.login-link a').addEventListener('click', (e) => {
-            e.preventDefault();
-            window.location.href = 'login.html';
+            const form = document.getElementById('cadastroForm');
+            const btnCadastrar = document.getElementById('btnCadastrar');
+            const inputs = form.querySelectorAll('input[required]');
+            form.addEventListener('input', () => {
+                const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+                btnCadastrar.disabled = !allFilled;
+            });
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const nomeInput = document.getElementById('nome');
+                const emailInput = document.getElementById('email');
+                const senhaInput = document.getElementById('senha');
+                const emailError = document.getElementById('email-error');
+                const nome = nomeInput.value.trim();
+                const email = emailInput.value.trim();
+                const senha = senhaInput.value;
+                if (!util.validarEmail(email)) {
+                    emailError.textContent = 'Insira um e-mail válido.';
+                    return;
+                } else {
+                    emailError.textContent = '';
+                }
+                const validacaoSenha = util.validarSenha(senha);
+                if (!validacaoSenha.valido) {
+                    util.mostrarErro(`Senha fraca: ${validacaoSenha.msg}`);
+                    return;
+                }
+                btnCadastrar.disabled = true;
+                try {
+                    await authController.registrar(nome, email, senha);
+                    util.mostrarSucesso('Cadastro realizado com sucesso!');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 500);
+                } catch (erro) {
+                    util.mostrarErro(erro.message || 'Falha no cadastro');
+                    btnCadastrar.disabled = false;
+                }
+            });
+            document.querySelector('.login-link a').addEventListener('click', (e) => {
+                e.preventDefault();
+                window.location.href = 'login.html';
+            });
         });
     </script>
 </body>

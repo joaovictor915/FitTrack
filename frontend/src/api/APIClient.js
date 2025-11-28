@@ -53,6 +53,14 @@ class APIClient {
             console.error(`[APIClient] Exceção em ${endpoint}:`, error);
             console.error(`[APIClient] Tipo de erro:`, error.constructor.name);
             console.error(`[APIClient] Stack:`, error.stack);
+            
+            // Mensagem mais clara para o usuário
+            if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                const mensagemErro = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando em http://127.0.0.1:5000';
+                console.error(`[APIClient] ${mensagemErro}`);
+                throw new Error(mensagemErro);
+            }
+            
             throw error;
         }
     }

@@ -28,17 +28,22 @@ def create_app(config_name='development'):
     Session(app)
     
     # Configura CORS - permite requisições do frontend
+    # IMPORTANTE: Inclui todas as portas possíveis do Live Server e outros servidores locais
     CORS(
         app,
         origins=[
             'http://127.0.0.1:5500',
+            'http://127.0.0.1:5501',
             'http://127.0.0.1:3000',
             'http://localhost:5500',
+            'http://localhost:5501',
             'http://localhost:3000',
-            'http://localhost:8080',
-            'file://'
+            'http://localhost:8080'
         ],
-        supports_credentials=True
+        supports_credentials=True,
+        allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
+        methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+        expose_headers=['Content-Type']
     )
     
     # Registra blueprints (rotas)

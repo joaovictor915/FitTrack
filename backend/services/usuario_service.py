@@ -5,6 +5,7 @@ Contém toda a lógica de negócio da aplicação
 
 import re
 from typing import Dict, Tuple, List
+from datetime import datetime
 from domain.entities import Usuario, Atividade
 from repositories.base_repository import UsuarioRepository, AtividadeRepository
 
@@ -153,6 +154,33 @@ class AtividadeService:
         # Calcula calorias
         calorias = self.calcular_calorias(tipo, duracao, intensidade, usuario.peso or 70)
         
+        # Converte data_atividade de string ISO para datetime se necessário
+        data_atividade = dados.get('data_atividade')
+        if data_atividade:
+            if isinstance(data_atividade, str):
+                try:
+                    # Remove o 'Z' do final se existir
+                    data_str = data_atividade.rstrip('Z')
+                    # Remove timezone offset se existir (formato +00:00 ou -03:00)
+                    if '+' in data_str:
+                        data_str = data_str.split('+')[0]
+                    elif data_str.count('-') > 2:  # Tem timezone negativo
+                        parts = data_str.rsplit('-', 2)
+                        if len(parts) == 3 and ':' in parts[2]:
+                            data_str = '-'.join(parts[:2])
+                    # Converte usando fromisoformat
+                    data_atividade = datetime.fromisoformat(data_str)
+                except (ValueError, AttributeError):
+                    # Se falhar, usa a data atual
+                    data_atividade = datetime.utcnow()
+            elif not isinstance(data_atividade, datetime):
+                data_atividade = datetime.utcnow()
+            # Remove timezone se existir (SQLite não suporta timezone)
+            if isinstance(data_atividade, datetime) and data_atividade.tzinfo:
+                data_atividade = data_atividade.replace(tzinfo=None)
+        else:
+            data_atividade = datetime.utcnow()
+        
         atividade = Atividade(
             usuario_id=usuario_id,
             tipo=tipo,
@@ -160,7 +188,7 @@ class AtividadeService:
             distancia=dados.get('distancia'),
             intensidade=intensidade,
             calorias_queimadas=calorias,
-            data_atividade=dados.get('data_atividade'),
+            data_atividade=data_atividade,
             observacoes=dados.get('observacoes')
         )
         

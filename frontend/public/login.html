@@ -7,68 +7,94 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    
+    <div id="nav-placeholder"></div>
+    <script>
+        fetch('nav-bar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
     <div class="container">
-        <h1 class="logo">FitTrack</h1>
+        <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M50,85 C30,65 15,50 15,35 C15,25 25,20 35,20 C40,20 45,22 50,28 C55,22 60,20 65,20 C75,20 85,25 85,35 C85,50 70,65 50,85 Z" fill="#00C853" filter="url(#glow)"/>
+                <path d="M30,50 L40,60 L50,45 L60,60 L70,50" stroke="#00C853" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+            <h1 class="logo">FITTRACK</h1>
+        </div>
         <h2>Acesse sua conta</h2>
         <form id="loginForm">
             <div class="form-group">
                 <label for="email">E-mail</label>
                 <input type="email" id="email" name="email" required placeholder="Seu e-mail cadastrado">
             </div>
-
             <div class="form-group">
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" name="senha" required placeholder="Sua senha">
             </div>
-
             <p class="help-text recovery-link"><a href="#" id="recoveryLink">Esqueceu sua senha?</a></p>
-
             <button type="submit">Entrar</button>
-
             <p class="login-link">Não tem uma conta? <a href="cadastro.html">Crie sua conta</a></p>
         </form>
     </div>
-
-    <!-- Scripts -->
-    <script src="../src/api/APIClient.js"></script>
-    <script src="../src/controllers/Controllers.js"></script>
-    <script src="../src/utils/Utilidades.js"></script>
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
     <script>
-        // Lógica de Login Funcional
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value.trim();
-            const senha = document.getElementById('senha').value;
-
-            if (!email || !senha) {
-                util.mostrarErro('Por favor, preencha todos os campos');
-                return;
+        // Função auxiliar para garantir que util está disponível
+        function usarUtil(callback) {
+            if (typeof util !== 'undefined' && util) {
+                callback();
+            } else {
+                console.error('util não está disponível. Tentando novamente...');
+                setTimeout(() => usarUtil(callback), 100);
             }
-
-            try {
-                console.log('[Login] Iniciando login...');
-                const resultado = await authController.login(email, senha);
-                console.log('[Login] Resultado:', resultado);
-                util.mostrarSucesso('Login realizado com sucesso!');
+        }
+        
+        // Aguarda o carregamento completo de todos os scripts
+        window.addEventListener('load', function() {
+            // Aguarda um pouco mais para garantir que todos os scripts foram carregados
+            setTimeout(function() {
+                if (typeof util === 'undefined') {
+                    console.error('Utilidades não carregado! Verifique o caminho do arquivo.');
+                    alert('Erro: Arquivo Utilidades.js não foi carregado. Verifique o console para mais detalhes.');
+                    return;
+                }
                 
-                // Aguarda um pouco antes de redirecionar para dar tempo da UI atualizar
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 500);
-            } catch (erro) {
-                console.error('[Login] Erro capturado:', erro);
-                const mensagemErro = erro?.message || erro?.toString() || 'Falha no login desconhecida';
-                console.error('[Login] Mensagem de erro:', mensagemErro);
-                util.mostrarErro(mensagemErro);
-            }
-        });
-
-        document.getElementById('recoveryLink').addEventListener('click', function(e) {
-            e.preventDefault();
-            util.mostrarErro('Funcionalidade de recuperação de senha ainda em desenvolvimento');
+                document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value.trim();
+                    const senha = document.getElementById('senha').value;
+                    if (!email || !senha) {
+                        util.mostrarErro('Por favor, preencha todos os campos');
+                        return;
+                    }
+                    try {
+                        await authController.login(email, senha);
+                        util.mostrarSucesso('Login realizado com sucesso!');
+                        setTimeout(() => {
+                            window.location.href = 'dashboard.html';
+                        }, 500);
+                    } catch (erro) {
+                        util.mostrarErro(erro?.message || 'Falha no login desconhecida');
+                    }
+                });
+                
+                document.getElementById('recoveryLink').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    util.mostrarErro('Funcionalidade de recuperação de senha ainda em desenvolvimento');
+                });
+            }, 200); // Aguarda 200ms após o load para garantir que scripts foram carregados
         });
     </script>
 </body>

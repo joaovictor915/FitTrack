@@ -8,15 +8,16 @@
 </head>
 <body>
     <div id="nav-placeholder"></div>
-<script>
-fetch('nav-bar.html')
-    .then(response => response.text())
-    .then(data => {
-        document.getElementById('nav-placeholder').innerHTML = data;
-    });
-</script>
-    <div class="container">
-        <h2>Registrar Atividade</h2>
+    <script>
+        fetch('nav-bar.html').then(r=>r.text()).then(d=>{
+            document.getElementById('nav-placeholder').innerHTML = d;
+        });
+    </script>
+    <div class="container" style="max-width: 600px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="margin: 0; font-size: 2.2em; font-weight: 700;">➕ Registrar Atividade</h2>
+            <p style="margin: 10px 0 0 0; color: var(--text-medium); font-size: 0.95em;">Preencha os dados da sua atividade física</p>
+        </div>
         <form id="registroAtividadeForm">
             <div class="form-group">
                 <label for="tipoAtividade">Tipo de Atividade <span class="required">*</span></label>
@@ -31,17 +32,14 @@ fetch('nav-bar.html')
                     <option value="yoga">Yoga (Customizado RF006)</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="duracao">Duração (minutos)</label>
                 <input type="number" id="duracao" name="duracao" min="1" max="9999" placeholder="Ex: 30">
             </div>
-
             <div class="form-group">
                 <label for="distancia">Distância (km)</label>
                 <input type="number" id="distancia" name="distancia" step="0.01" min="0" max="9999" placeholder="Ex: 5.5">
             </div>
-
             <div class="form-group">
                 <label for="intensidade">Intensidade</label>
                 <select id="intensidade" name="intensidade">
@@ -51,43 +49,32 @@ fetch('nav-bar.html')
                     <option value="alta">Alta</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="calorias">Calorias (Estimadas)</label>
                 <input type="number" id="calorias" name="calorias" min="0" placeholder="Ex: 450">
             </div>
-            
             <button type="submit">Salvar Atividade</button>
         </form>
     </div>
-
-    <!-- Scripts -->
-    <script src="../src/api/APIClient.js"></script>
-    <script src="../src/controllers/Controllers.js"></script>
-    <script src="../src/utils/Utilidades.js"></script>
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
     <script>
-        // Inicializa autenticação
         async function inicializarPagina() {
             const autenticado = await authController.inicializar();
             if (!autenticado) {
                 window.location.href = 'login.html';
                 return;
             }
-
-            // Atualiza calorias estimadas quando mudam os valores
             document.getElementById('tipoAtividade').addEventListener('change', calcularCalorias);
             document.getElementById('duracao').addEventListener('input', calcularCalorias);
             document.getElementById('intensidade').addEventListener('change', calcularCalorias);
         }
-
         function calcularCalorias() {
             const tipo = document.getElementById('tipoAtividade').value;
             const duracao = Number.parseInt(document.getElementById('duracao').value) || 0;
             const intensidade = document.getElementById('intensidade').value || 'moderada';
-
             if (!tipo || !duracao) return;
-
-            // Tabela de calorias por minuto
             const tabelaCalorias = {
                 'corrida': { 'baixa': 8, 'moderada': 12, 'alta': 15 },
                 'caminhada': { 'baixa': 3.5, 'moderada': 5, 'alta': 7 },
@@ -97,45 +84,37 @@ fetch('nav-bar.html')
                 'artesmarciais': { 'baixa': 8, 'moderada': 12, 'alta': 16 },
                 'yoga': { 'baixa': 2, 'moderada': 4, 'alta': 6 }
             };
-
             const peso = authController.usuarioAtual?.peso || 70;
             const caloriasBase = tabelaCalorias[tipo]?.[intensidade] || 5;
             const calorias = Math.round((caloriasBase * duracao * peso) / 70);
-
             document.getElementById('calorias').value = calorias;
         }
-
-        // Lógica de submissão do formulário
         document.getElementById('registroAtividadeForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             const tipo = document.getElementById('tipoAtividade').value;
-
             if (!tipo) {
                 util.mostrarErro('Por favor, selecione o Tipo de Atividade');
                 return;
             }
-
-            const duracao = Number.parseInt(document.getElementById('duracao').value) || null;
+            const duracao = Number.parseInt(document.getElementById('duracao').value);
+            if (!duracao || duracao <= 0) {
+                util.mostrarErro('Duração é obrigatória e deve ser maior que 0');
+                return;
+            }
             const distancia = Number.parseFloat(document.getElementById('distancia').value) || null;
             const intensidade = document.getElementById('intensidade').value || 'moderada';
-
             try {
                 const dataAtual = new Date().toISOString();
-
-                await atividadesController.criar({
-                    tipo,
-                    duracao,
-                    distancia,
-                    intensidade,
-                    data_atividade: dataAtual
+                await atividadesController.criar({ 
+                    tipo, 
+                    duracao, 
+                    distancia, 
+                    intensidade, 
+                    data_atividade: dataAtual 
                 });
-
                 util.mostrarSucesso('Atividade registrada com sucesso!');
                 document.getElementById('registroAtividadeForm').reset();
                 document.getElementById('calorias').value = '';
-
-                // Redireciona para histórico após 1 segundo
                 setTimeout(() => {
                     window.location.href = 'historico.html';
                 }, 1000);
@@ -143,8 +122,6 @@ fetch('nav-bar.html')
                 util.mostrarErro(erro.message || 'Erro ao registrar atividade');
             }
         });
-
-        // Inicializa a página quando carrega
         window.addEventListener('load', inicializarPagina);
     </script>
 </body>

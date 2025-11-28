@@ -5,88 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard FitTrack</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .container { max-width: 600px; padding: 20px; }
-        .welcome-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .welcome-header h2 { margin: 0; }
-        .stat-card { background-color: #e9ecef; padding: 15px; border-radius: 6px; margin-bottom: 10px; }
-        .stat-card h4 { margin: 0 0 5px 0; color: #555; font-size: 1em; }
-        .stat-card p { margin: 0; font-size: 1.5em; font-weight: bold; color: #FF416C; }
-        .navigation { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 30px; }
-        .nav-button { text-align: center; padding: 20px 10px; background-color: #007BFF; color: white; border-radius: 6px; text-decoration: none; font-weight: bold; transition: background-color 0.3s; }
-        .nav-button:hover { background-color: #0056b3; }
-        .logout-btn { background: none; border: none; color: #dc3545; cursor: pointer; font-weight: bold; }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="welcome-header">
-            <h2>Olá, [Nome do Usuário]!</h2>
-            <button class="logout-btn" id="logoutBtn">Logout (RF014)</button>
+    <div id="nav-placeholder"></div>
+    <script>
+        fetch('nav-bar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
+    <div class="container" style="max-width: 900px;">
+        <div class="welcome-header" style="margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h2 style="font-size:2.2em; margin:0; font-weight: 700; background: linear-gradient(135deg, var(--text-light) 0%, var(--text-medium) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    Olá, <span id="nomeUsuario" style="color: var(--primary-color); -webkit-text-fill-color: var(--primary-color);">[Nome]</span>!
+                </h2>
+                <p style="margin: 8px 0 0 0; color: var(--text-medium); font-size: 0.95em;">Bem-vindo de volta ao FitTrack</p>
+            </div>
+            <button class="logout-btn btn-deletar" id="logoutBtn" style="width: auto; padding: 10px 20px; font-size: 0.9em;">Sair</button>
         </div>
 
-        <h3>Progresso de Metas (RF012)</h3>
-        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-            <div class="stat-card" style="flex: 1;">
-                <h4>Concluídas</h4>
-                <p>3</p>
+        <div class="stats-section" style="margin-bottom: 40px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.4em; color: var(--text-light); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
+                📊 Suas Estatísticas
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div class="stat-card" style="text-align: center; position: relative;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">🏃</div>
+                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Atividades</h4>
+                    <p id="statAtividades" style="font-size: 2.5em; margin: 0;">0</p>
+                </div>
+                <div class="stat-card" style="text-align: center; position: relative;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">⏱️</div>
+                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Horas</h4>
+                    <p id="statHoras" style="font-size: 2.5em; margin: 0;">0h</p>
+                </div>
+                <div class="stat-card" style="text-align: center; position: relative;">
+                    <div style="font-size: 2.5em; margin-bottom: 10px;">🔥</div>
+                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Calorias</h4>
+                    <p id="statCalorias" style="font-size: 2.5em; margin: 0;">0 kcal</p>
+                </div>
             </div>
-            <div class="stat-card" style="flex: 1;">
-                <h4>Pendentes</h4>
-                <p>2</p>
-            </div>
-            <div class="stat-card" style="flex: 1;">
-                <h4>Tempo Restante</h4>
-                <p>4 dias</p>
-            </div>
-        </div>
-        
-        <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 10px; border-radius: 4px; margin-bottom: 30px;">
-            ⚠️ **Lembrete (RF013):** Você tem 1 meta de corrida pendente esta semana.
         </div>
 
-        <h3>Ações Rápidas</h3>
-        <div class="navigation">
-            <a href="registro_atividade.html" class="nav-button">Registrar Atividade</a>
-            <a href="#" class="nav-button">Histórico (RF007)</a>
-            <a href="#" class="nav-button">Metas (RF008)</a>
-            <a href="perfil.html" class="nav-button">Meu Perfil (RF002)</a>
+        <div class="actions-section">
+            <h3 style="margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 200, 83, 0.3);">
+                ⚡ Ações Rápidas
+            </h3>
+            <div class="navigation">
+                <a href="registro_atividade.html" class="nav-button">
+                    <span style="font-size: 1.3em; margin-right: 8px;">➕</span>
+                    Registrar Atividade
+                </a>
+                <a href="historico.html" class="nav-button">
+                    <span style="font-size: 1.3em; margin-right: 8px;">📋</span>
+                    Histórico
+                </a>
+                <a href="#" class="nav-button">
+                    <span style="font-size: 1.3em; margin-right: 8px;">🎯</span>
+                    Metas
+                </a>
+                <a href="perfil.html" class="nav-button">
+                    <span style="font-size: 1.3em; margin-right: 8px;">👤</span>
+                    Meu Perfil
+                </a>
+            </div>
         </div>
     </div>
-
+    
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
     <script>
-        // Carrega dados do dashboard
-        async function carregarDashboard() {
-            try {
-                // Inicializa autenticação
-                const autenticado = await authController.inicializar();
-                if (!autenticado) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const usuario = authController.usuarioAtual;
-                
-                // Atualiza saudação
-                document.querySelector('.welcome-header h2').textContent = `Olá, ${usuario.nome}!`;
-
-                // Carrega estatísticas
-                const stats = await atividadesController.atualizarEstatisticas();
-                
-                if (stats) {
-                    document.querySelectorAll('.stat-card')[0].querySelector('p').textContent = 
-                        stats.total_atividades || '0';
-                    document.querySelectorAll('.stat-card')[1].querySelector('p').textContent = 
-                        util.formatarNumero(stats.total_duracao_minutos / 60, 1) + ' horas';
-                    document.querySelectorAll('.stat-card')[2].querySelector('p').textContent = 
-                        util.formatarNumero(stats.total_calorias) + ' kcal';
-                }
-            } catch (erro) {
-                console.error('Erro ao carregar dashboard:', erro);
+    // Carrega dados do dashboard
+    async function carregarDashboard() {
+        try {
+            const autenticado = await authController.inicializar();
+            if (!autenticado) {
+                window.location.href = 'login.html';
+                return;
             }
+            const usuario = authController.usuarioAtual;
+            if (usuario) {
+                document.getElementById('nomeUsuario').textContent = usuario.nome || 'Usuário';
+            }
+            
+            // Carrega estatísticas reais
+            try {
+                const stats = await atividadesController.atualizarEstatisticas();
+                if (stats) {
+                    // Total de atividades
+                    document.getElementById('statAtividades').textContent = stats.total_atividades || 0;
+                    // Total de horas (converte minutos para horas)
+                    const horas = Math.floor((stats.total_duracao_minutos || 0) / 60);
+                    document.getElementById('statHoras').textContent = horas + 'h';
+                    // Total de calorias
+                    document.getElementById('statCalorias').textContent = (stats.total_calorias || 0) + ' kcal';
+                }
+            } catch (erroStats) {
+                console.error('Erro ao carregar estatísticas:', erroStats);
+            }
+        } catch (erro) {
+            console.error('Erro ao carregar dashboard:', erro);
+            window.location.href = 'login.html';
         }
-
-        // Logout
+    }
+    // Logout
+    document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('logoutBtn').addEventListener('click', async function() {
             if (util.confirmar('Deseja fazer logout?')) {
                 try {
@@ -100,14 +126,8 @@
                 }
             }
         });
-
-        // Inicializa ao carregar
-        window.addEventListener('load', carregarDashboard);
+        carregarDashboard();
+    });
     </script>
-    
-    <!-- Scripts -->
-    <script src="../src/api/APIClient.js"></script>
-    <script src="../src/controllers/Controllers.js"></script>
-    <script src="../src/utils/Utilidades.js"></script>
 </body>
 </html>
