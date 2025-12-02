@@ -93,34 +93,9 @@
             document.getElementById('historicoList').innerHTML = '<p style="color: red;">Erro ao carregar atividades</p>';
         }
     }
+    
     async function editarAtividade(id) {
-        try {
-            const atividade = await atividadesController.obter(id);
-            
-            const novoTipo = prompt('Tipo de atividade:', atividade.tipo);
-            if (!novoTipo) return;
-
-            const novaDuracao = prompt('Duração (minutos):', atividade.duracao || '');
-            if (novaDuracao === null) return;
-
-            const novaDistancia = prompt('Distância (km):', atividade.distancia || '');
-            if (novaDistancia === null) return;
-
-            const novaIntensidade = prompt('Intensidade (baixa/moderada/alta):', atividade.intensidade || 'moderada');
-            if (!novaIntensidade) return;
-
-            await atividadesController.atualizar(id, {
-                tipo: novoTipo,
-                duracao: parseInt(novaDuracao) || null,
-                distancia: parseFloat(novaDistancia) || null,
-                intensidade: novaIntensidade
-            });
-
-            util.mostrarSucesso('Atividade atualizada com sucesso!');
-            carregarAtividades();
-        } catch (erro) {
-            util.mostrarErro(erro.message || 'Erro ao editar atividade');
-        }
+        window.location.href = `editar_atividade.html?id=${id}`;
     }
 
     async function deletarAtividade(id) {

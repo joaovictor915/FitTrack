@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard FitTrack</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="nav-placeholder"></div>
     <script>
@@ -16,41 +18,54 @@
             });
     </script>
     <div class="container" style="max-width: 900px;">
-        <div class="welcome-header" style="margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div class="welcome-header"
+            style="margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
-                <h2 style="font-size:2.2em; margin:0; font-weight: 700; background: linear-gradient(135deg, var(--text-light) 0%, var(--text-medium) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                    Olá, <span id="nomeUsuario" style="color: var(--primary-color); -webkit-text-fill-color: var(--primary-color);">[Nome]</span>!
+                <h2
+                    style="font-size:2.2em; margin:0; font-weight: 700; background: linear-gradient(135deg, var(--text-light) 0%, var(--text-medium) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    Olá, <span id="nomeUsuario"
+                        style="color: var(--primary-color); -webkit-text-fill-color: var(--primary-color);">[Nome]</span>!
                 </h2>
-                <p style="margin: 8px 0 0 0; color: var(--text-medium); font-size: 0.95em;">Bem-vindo de volta ao FitTrack</p>
+                <p style="margin: 8px 0 0 0; color: var(--text-medium); font-size: 0.95em;">Bem-vindo de volta ao
+                    FitTrack</p>
             </div>
-            <button class="logout-btn btn-deletar" id="logoutBtn" style="width: auto; padding: 10px 20px; font-size: 0.9em;">Sair</button>
+            <button class="logout-btn btn-deletar" id="logoutBtn"
+                style="width: auto; padding: 10px 20px; font-size: 0.9em;">Sair</button>
         </div>
 
         <div class="stats-section" style="margin-bottom: 40px;">
-            <h3 style="margin-bottom: 20px; font-size: 1.4em; color: var(--text-light); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
+            <h3
+                style="margin-bottom: 20px; font-size: 1.4em; color: var(--text-light); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;">
                 📊 Suas Estatísticas
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
                 <div class="stat-card" style="text-align: center; position: relative;">
                     <div style="font-size: 2.5em; margin-bottom: 10px;">🏃</div>
-                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Atividades</h4>
+                    <h4
+                        style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">
+                        Total de Atividades</h4>
                     <p id="statAtividades" style="font-size: 2.5em; margin: 0;">0</p>
                 </div>
                 <div class="stat-card" style="text-align: center; position: relative;">
                     <div style="font-size: 2.5em; margin-bottom: 10px;">⏱️</div>
-                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Horas</h4>
+                    <h4
+                        style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">
+                        Total de Horas</h4>
                     <p id="statHoras" style="font-size: 2.5em; margin: 0;">0h</p>
                 </div>
                 <div class="stat-card" style="text-align: center; position: relative;">
                     <div style="font-size: 2.5em; margin-bottom: 10px;">🔥</div>
-                    <h4 style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">Total de Calorias</h4>
+                    <h4
+                        style="color: var(--text-medium); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.1em;">
+                        Total de Calorias</h4>
                     <p id="statCalorias" style="font-size: 2.5em; margin: 0;">0 kcal</p>
                 </div>
             </div>
         </div>
 
         <div class="actions-section">
-            <h3 style="margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 200, 83, 0.3);">
+            <h3
+                style="margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 200, 83, 0.3);">
                 ⚡ Ações Rápidas
             </h3>
             <div class="navigation">
@@ -62,7 +77,7 @@
                     <span style="font-size: 1.3em; margin-right: 8px;">📋</span>
                     Histórico
                 </a>
-                <a href="#" class="nav-button">
+                <a href="metas.html" class="nav-button">
                     <span style="font-size: 1.3em; margin-right: 8px;">🎯</span>
                     Metas
                 </a>
@@ -73,61 +88,62 @@
             </div>
         </div>
     </div>
-    
+
     <script src="src/api/APIClient.js"></script>
     <script src="src/controllers/Controllers.js"></script>
     <script src="src/utils/Utilidades.js"></script>
     <script>
-    // Carrega dados do dashboard
-    async function carregarDashboard() {
-        try {
-            const autenticado = await authController.inicializar();
-            if (!autenticado) {
-                window.location.href = 'login.html';
-                return;
-            }
-            const usuario = authController.usuarioAtual;
-            if (usuario) {
-                document.getElementById('nomeUsuario').textContent = usuario.nome || 'Usuário';
-            }
-            
-            // Carrega estatísticas reais
+        // Carrega dados do dashboard
+        async function carregarDashboard() {
             try {
-                const stats = await atividadesController.atualizarEstatisticas();
-                if (stats) {
-                    // Total de atividades
-                    document.getElementById('statAtividades').textContent = stats.total_atividades || 0;
-                    // Total de horas (converte minutos para horas)
-                    const horas = Math.floor((stats.total_duracao_minutos || 0) / 60);
-                    document.getElementById('statHoras').textContent = horas + 'h';
-                    // Total de calorias
-                    document.getElementById('statCalorias').textContent = (stats.total_calorias || 0) + ' kcal';
+                const autenticado = await authController.inicializar();
+                if (!autenticado) {
+                    window.location.href = 'login.html';
+                    return;
                 }
-            } catch (erroStats) {
-                console.error('Erro ao carregar estatísticas:', erroStats);
-            }
-        } catch (erro) {
-            console.error('Erro ao carregar dashboard:', erro);
-            window.location.href = 'login.html';
-        }
-    }
-    // Logout
-    document.addEventListener('DOMContentLoaded', function(){
-        document.getElementById('logoutBtn').addEventListener('click', async function() {
-            if (util.confirmar('Deseja fazer logout?')) {
+                const usuario = authController.usuarioAtual;
+                if (usuario) {
+                    document.getElementById('nomeUsuario').textContent = usuario.nome || 'Usuário';
+                }
+
+                // Carrega estatísticas reais
                 try {
-                    await authController.logout();
-                    util.mostrarSucesso('Logout realizado com sucesso!');
-                    setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 500);
-                } catch (erro) {
-                    util.mostrarErro(erro.message);
+                    const stats = await atividadesController.atualizarEstatisticas();
+                    if (stats) {
+                        // Total de atividades
+                        document.getElementById('statAtividades').textContent = stats.total_atividades || 0;
+                        // Total de horas (converte minutos para horas)
+                        const horas = Math.floor((stats.total_duracao_minutos || 0) / 60);
+                        document.getElementById('statHoras').textContent = horas + 'h';
+                        // Total de calorias
+                        document.getElementById('statCalorias').textContent = (stats.total_calorias || 0) + ' kcal';
+                    }
+                } catch (erroStats) {
+                    console.error('Erro ao carregar estatísticas:', erroStats);
                 }
+            } catch (erro) {
+                console.error('Erro ao carregar dashboard:', erro);
+                window.location.href = 'login.html';
             }
+        }
+        // Logout
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('logoutBtn').addEventListener('click', async function () {
+                if (util.confirmar('Deseja fazer logout?')) {
+                    try {
+                        await authController.logout();
+                        util.mostrarSucesso('Logout realizado com sucesso!');
+                        setTimeout(() => {
+                            window.location.href = 'login.html';
+                        }, 500);
+                    } catch (erro) {
+                        util.mostrarErro(erro.message);
+                    }
+                }
+            });
+            carregarDashboard();
         });
-        carregarDashboard();
-    });
     </script>
 </body>
+
 </html>

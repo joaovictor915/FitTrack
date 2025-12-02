@@ -136,6 +136,42 @@ class APIClient {
     async obterEstatisticas() {
         return this.requisicao('/atividades/resumo/stats');
     }
+
+    // // ==================== METAS ====================
+    
+    // async listarMetas() {
+    //     /** GET /api/metas */
+    //     return this.requisicao('/metas');
+    // }
+
+    // async obterMeta(id) {
+    //     /** GET /api/metas/<id> */
+    //     return this.requisicao(`/metas/${id}`);
+    // }
+
+    // async criarMeta(dados) {
+    //     /** POST /api/metas */
+    //     return this.requisicao('/metas', {
+    //         method: 'POST',
+    //         body: JSON.stringify(dados)
+    //     });
+    // }
+
+    // async atualizarMeta(id, dados) {
+    //     /** PUT /api/metas/<id> */
+    //     return this.requisicao(`/metas/${id}`, {
+    //         method: 'PUT',
+    //         body: JSON.stringify(dados)
+    //     });
+    // }
+
+    // async deletarMeta(id) {
+    //     /** DELETE /api/metas/<id> */
+    //     return this.requisicao(`/metas/${id}`, {
+    //         method: 'DELETE'
+    //     });
+    // }
+    
 }
 
 // Instância global

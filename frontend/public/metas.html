@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Metas - FitTrack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <script>
+        fetch('nav-bar.html').then(response => response.text()).then(data => {
+            document.getElementById('nav-placeholder').innerHTML = data;
+        });
+    </script>
+
+    <div class="container" style="max-width: 900px;">
+        <h2 style="margin-bottom: 30px; color: var(--text-light); border-bottom: 2px solid var(--primary-color);">🎯 Minhas Metas de Fitness</h2>
+        
+        <button id="abrirModalMeta" class="btn-primary" style="margin-bottom: 20px;">
+            + Nova Meta
+        </button>
+
+        <div id="listaMetas" class="lista-metas">
+            <p style="text-align: center; color: var(--text-medium); margin-top: 40px;">Carregando metas...</p>
+        </div>
+    </div>
+
+    <div id="modalMeta" class="modal" style="display:none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
+        <div class="modal-content" style="background-color: var(--card-bg); margin: 15% auto; padding: 20px; border: 1px solid var(--border-color); width: 80%; max-width: 500px; border-radius: 10px;">
+            <span class="close" id="fecharModal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            <h3 id="modalTitulo">Criar Nova Meta</h3>
+            <form id="formMeta" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <input type="hidden" id="metaId">
+                
+                <div>
+                    <label for="titulo">Título:</label>
+                    <input type="text" id="titulo" required>
+                </div>
+
+                <div>
+                    <label for="tipo">Tipo de Meta:</label>
+                    <select id="tipo" required>
+                        <option value="peso">Perda de Peso (kg)</option>
+                        <option value="distancia">Distância (km)</option>
+                        <option value="duracao">Duração (minutos)</option>
+                        <option value="calorias">Calorias Queimadas (kcal)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="valorAlvo">Valor Alvo:</label>
+                    <input type="number" id="valorAlvo" step="0.1" required>
+                </div>
+
+                <div>
+                    <label for="progressoAtual">Progresso Atual:</label>
+                    <input type="number" id="progressoAtual" step="0.1" value="0.0">
+                </div>
+                
+                <div>
+                    <label for="dataAlvo">Data Limite:</label>
+                    <input type="date" id="dataAlvo">
+                </div>
+                
+                <button type="submit" class="btn-primary" style="margin-top: 10px;">Salvar Meta</button>
+            </form>
+        </div>
+    </div>
+    
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
+    
+    <script>
+    // Referências do DOM
+    const listaMetasDiv = document.getElementById('listaMetas');
+    const modalMeta = document.getElementById('modalMeta');
+    const formMeta = document.getElementById('formMeta');
+    const abrirModalBtn = document.getElementById('abrirModalMeta');
+    const fecharModalBtn = document.getElementById('fecharModal');
+    
+    // ==================== FUNÇÕES DE RENDERIZAÇÃO ====================
+    
+    function renderizarMeta(meta) {
+        // Calcula a porcentagem de progresso
+        const porcentagem = Math.min(100, (meta.progresso_atual / meta.valor_alvo) * 100).toFixed(0);
+        const statusClass = meta.status === 'Concluída' ? 'meta-concluida' : 'meta-progresso';
+        
+        return `
+            <div class="meta-card ${statusClass}" style="border: 1px solid var(--border-color); padding: 15px; margin-bottom: 15px; border-radius: 8px; background-color: var(--card-bg-light); box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0; color: var(--primary-color); font-size: 1.2em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px;">
+                    ${meta.titulo}
+                </h4>
+                <p><strong>Tipo:</strong> ${meta.tipo.toUpperCase()}</p>
+                <p><strong>Alvo:</strong> ${meta.valor_alvo} | <strong>Progresso:</strong> ${meta.progresso_atual}</p>
+                <p><strong>Data Limite:</strong> ${meta.data_alvo ? util.formatarData(meta.data_alvo) : 'N/A'}</p>
+                
+                <div class="progresso-bar" style="height: 10px; background-color: var(--border-color); border-radius: 5px; margin: 10px 0;">
+                    <div class="progresso-fill" style="width: ${porcentagem}%; height: 100%; background-color: ${meta.status === 'Concluída' ? '#00bfa5' : 'var(--accent-color)'}; border-radius: 5px; transition: width 0.5s;"></div>
+                </div>
+                <p style="margin-top: 5px; font-size: 0.9em; text-align: right; color: var(--text-medium);">
+                    ${porcentagem}% Concluído
+                </p>
+
+                <div style="margin-top: 15px; text-align: right;">
+                    <button class="btn-deletar" onclick="deletarMeta(${meta.id})" style="padding: 5px 10px; font-size: 0.8em;">Excluir</button>
+                </div>
+            </div>
+        `;
+    }
+
+    // ==================== FUNÇÕES DE AÇÃO ====================
+    
+    async function carregarMetas() {
+        listaMetasDiv.innerHTML = '<p style="text-align: center; color: var(--text-medium); margin-top: 40px;">Carregando metas...</p>';
+        try {
+            const autenticado = await authController.inicializar();
+            if (!autenticado) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const metas = await metasController.listarMetas();
+            
+            if (metas.length === 0) {
+                listaMetasDiv.innerHTML = '<p style="text-align: center; color: var(--text-medium); margin-top: 40px;">Você não tem metas cadastradas. Crie sua primeira meta!</p>';
+                return;
+            }
+            
+            listaMetasDiv.innerHTML = metas.map(renderizarMeta).join('');
+            
+        } catch (erro) {
+            console.error('Erro ao carregar metas:', erro);
+            listaMetasDiv.innerHTML = '<p style="color: red; text-align: center; margin-top: 40px;">Erro ao carregar metas. Tente novamente.</p>';
+        }
+    }
+
+    async function salvarMeta(event) {
+        event.preventDefault();
+        
+        const dados = {
+            titulo: document.getElementById('titulo').value,
+            tipo: document.getElementById('tipo').value,
+            valor_alvo: parseFloat(document.getElementById('valorAlvo').value),
+            progresso_atual: parseFloat(document.getElementById('progressoAtual').value),
+            data_alvo: document.getElementById('dataAlvo').value, // Envia como string ISO para o backend
+        };
+        
+        try {
+            // Verifica se está editando ou criando (por enquanto, só criação)
+            await metasController.criarMeta(dados);
+            util.mostrarSucesso('Meta salva com sucesso!');
+            
+            modalMeta.style.display = 'none';
+            carregarMetas(); // Recarrega a lista
+            
+        } catch (erro) {
+            util.mostrarErro(`Falha ao salvar a meta: ${erro.message}`);
+        }
+    }
+    
+    async function deletarMeta(id) {
+        if (!util.confirmar('Tem certeza que deseja excluir esta meta?')) {
+            return;
+        }
+        
+        try {
+            await metasController.deletarMeta(id);
+            util.mostrarSucesso('Meta excluída com sucesso!');
+            carregarMetas(); // Recarrega a lista
+        } catch (erro) {
+            util.mostrarErro(`Falha ao excluir a meta: ${erro.message}`);
+        }
+    }
+
+    // ==================== LISTENERS DE EVENTOS ====================
+    
+    document.addEventListener('DOMContentLoaded', function(){
+        // Inicia o carregamento das metas
+        carregarMetas();
+        
+        // Listener para abrir o modal
+        abrirModalBtn.addEventListener('click', () => {
+            document.getElementById('modalTitulo').textContent = 'Criar Nova Meta';
+            formMeta.reset();
+            modalMeta.style.display = 'block';
+        });
+        
+        // Listener para fechar o modal
+        fecharModalBtn.addEventListener('click', () => {
+            modalMeta.style.display = 'none';
+        });
+
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', (event) => {
+            if (event.target == modalMeta) {
+                modalMeta.style.display = 'none';
+            }
+        });
+        
+        // Listener para o formulário (salvar meta)
+        formMeta.addEventListener('submit', salvarMeta);
+    });
+
+    </script>
+</body>
+</html>

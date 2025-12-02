@@ -1,5 +1,7 @@
 # FitTrack - Aplicativo de Rastreamento de Fitness
 
+Link com vídeo para apresentação: https://youtu.be/T5i0QB1ZaAc?si=ozrVShHI2oc5uRI7
+
 Um aplicativo web completo para rastreamento de atividades físicas, desenvolvido com arquitetura MVC.
 
 ## 🏗️ Estrutura do Projeto

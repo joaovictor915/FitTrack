@@ -157,3 +157,31 @@ class AtividadeRepository(BaseRepository):
             self.db.session.commit()
             return atividade
         return None
+ # class MetaRepository:
+#     """Implementação do Repositório para o modelo Meta"""
+    
+#     def save(self, meta: Meta) -> Meta:
+#         db.session.add(meta)
+#         db.session.commit()
+#         return meta
+
+#     def find_by_id(self, meta_id: int) -> Meta:
+#         return db.session.get(Meta, meta_id)
+
+#     def find_by_usuario(self, usuario_id: int) -> List[Meta]:
+#         """Encontra todas as metas de um usuário"""
+#         return db.session.execute(
+#             db.select(Meta)
+#             .filter_by(usuario_id=usuario_id)
+#             .order_by(Meta.data_criacao.desc())
+#         ).scalars().all()
+
+#     def update(self, meta: Meta) -> Meta:
+#         db.session.commit()
+#         return meta
+
+#     def delete(self, meta_id: int):
+#         meta = self.find_by_id(meta_id)
+#         if meta:
+#             db.session.delete(meta)
+#             db.session.commit()

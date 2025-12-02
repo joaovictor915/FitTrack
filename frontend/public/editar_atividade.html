@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Atividade</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <script>
+        fetch('nav-bar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('nav-placeholder').innerHTML = data;
+            });
+    </script>
+
+    <div class="container" style="max-width: 640px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="margin: 0; font-size: 2.2em; font-weight: 700;">✏️ Editar Atividade</h2>
+            <p style="margin: 12px 0 0 0; color: var(--text-medium); font-size: 0.95em;">
+                Atualize as informações da atividade selecionada
+            </p>
+        </div>
+
+        <form id="editarAtividadeForm">
+            <div class="form-group">
+                <label for="tipoAtividade">Tipo de Atividade <span class="required">*</span></label>
+                <select id="tipoAtividade" required>
+                    <option value="">Selecione o Tipo</option>
+                    <option value="corrida">Corrida</option>
+                    <option value="caminhada">Caminhada</option>
+                    <option value="ciclismo">Ciclismo</option>
+                    <option value="musculacao">Musculação</option>
+                    <option value="natacao">Natação</option>
+                    <option value="artesmarciais">Artes Marciais</option>
+                    <option value="yoga">Yoga</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="duracao">Duração (minutos) <span class="required">*</span></label>
+                <input type="number" id="duracao" min="1" max="9999" placeholder="Ex: 45" required>
+            </div>
+
+            <div class="form-group">
+                <label for="distancia">Distância (km)</label>
+                <input type="number" id="distancia" min="0" step="0.01" placeholder="Ex: 5.2">
+            </div>
+
+            <div class="form-group">
+                <label for="intensidade">Intensidade</label>
+                <select id="intensidade">
+                    <option value="baixa">Baixa</option>
+                    <option value="moderada">Moderada</option>
+                    <option value="alta">Alta</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dataAtividade">Data e Hora da Atividade</label>
+                <input type="datetime-local" id="dataAtividade">
+            </div>
+
+            <div class="form-group">
+                <label for="observacoes">Observações</label>
+                <textarea id="observacoes" rows="4" placeholder="Adicione observações importantes..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button type="submit" style="flex: 1; min-width: 180px;">Salvar Alterações</button>
+                <button type="button"
+                    style="flex: 1; min-width: 180px; background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color);"
+                    onclick="window.location.href='historico.html'">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="src/api/APIClient.js"></script>
+    <script src="src/controllers/Controllers.js"></script>
+    <script src="src/utils/Utilidades.js"></script>
+    <script>
+        let atividadeId = null;
+
+        async function inicializarPagina() {
+            const autenticado = await authController.inicializar();
+            if (!autenticado) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            atividadeId = params.get('id');
+
+            if (!atividadeId) {
+                util.mostrarErro('Atividade não informada para edição');
+                setTimeout(() => window.location.href = 'historico.html', 1500);
+                return;
+            }
+
+            await carregarDadosAtividade();
+
+            document.getElementById('tipoAtividade').addEventListener('change', calcularCalorias);
+            document.getElementById('duracao').addEventListener('input', calcularCalorias);
+            document.getElementById('intensidade').addEventListener('change', calcularCalorias);
+        }
+
+        async function carregarDadosAtividade() {
+            try {
+                const atividade = await atividadesController.obter(atividadeId);
+                document.getElementById('tipoAtividade').value = atividade.tipo || '';
+                document.getElementById('duracao').value = atividade.duracao || '';
+                document.getElementById('distancia').value = atividade.distancia ?? '';
+                document.getElementById('intensidade').value = atividade.intensidade || 'moderada';
+                document.getElementById('observacoes').value = atividade.observacoes || '';
+
+                if (atividade.data_atividade) {
+                    const data = new Date(atividade.data_atividade);
+                    const local = new Date(data.getTime() - data.getTimezoneOffset() * 60000)
+                        .toISOString()
+                        .slice(0, 16);
+                    document.getElementById('dataAtividade').value = local;
+                }
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Não foi possível carregar a atividade');
+                setTimeout(() => window.location.href = 'historico.html', 1500);
+            }
+        }
+
+        function calcularCalorias() {
+            // Mantém cálculo consistente com tela de registro
+            const tipo = document.getElementById('tipoAtividade').value;
+            const duracao = Number.parseInt(document.getElementById('duracao').value) || 0;
+            const intensidade = document.getElementById('intensidade').value || 'moderada';
+            if (!tipo || !duracao) return;
+
+            const tabelaCalorias = {
+                corrida: { baixa: 8, moderada: 12, alta: 15 },
+                caminhada: { baixa: 3.5, moderada: 5, alta: 7 },
+                ciclismo: { baixa: 6, moderada: 10, alta: 14 },
+                musculacao: { baixa: 5, moderada: 8, alta: 12 },
+                natacao: { baixa: 7, moderada: 10, alta: 14 },
+                artesmarciais: { baixa: 8, moderada: 12, alta: 16 },
+                yoga: { baixa: 2, moderada: 4, alta: 6 }
+            };
+
+            const peso = authController.usuarioAtual?.peso || 70;
+            const base = tabelaCalorias[tipo]?.[intensidade] || 5;
+            const calorias = Math.round((base * duracao * peso) / 70);
+            document.getElementById('observacoes').placeholder =
+                `Estimativa de ${calorias} kcal. Ajuste observações se desejar.`;
+        }
+
+        document.getElementById('editarAtividadeForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const tipo = document.getElementById('tipoAtividade').value;
+            const duracao = Number.parseInt(document.getElementById('duracao').value);
+            const distancia = document.getElementById('distancia').value;
+            const intensidade = document.getElementById('intensidade').value || 'moderada';
+            const observacoes = document.getElementById('observacoes').value || null;
+
+            if (!tipo) {
+                util.mostrarErro('Selecione o tipo de atividade');
+                return;
+            }
+            if (!duracao || duracao <= 0) {
+                util.mostrarErro('Duração deve ser maior que zero');
+                return;
+            }
+
+            let dataAtividade = null;
+            const dataInput = document.getElementById('dataAtividade').value;
+            if (dataInput) {
+                dataAtividade = new Date(dataInput).toISOString();
+            }
+
+            try {
+                await atividadesController.atualizar(atividadeId, {
+                    tipo,
+                    duracao,
+                    distancia: distancia === '' ? null : Number.parseFloat(distancia),
+                    intensidade,
+                    observacoes,
+                    data_atividade: dataAtividade
+                });
+                util.mostrarSucesso('Atividade atualizada com sucesso!');
+                setTimeout(() => window.location.href = 'historico.html', 1000);
+            } catch (erro) {
+                util.mostrarErro(erro.message || 'Erro ao salvar alterações');
+            }
+        });
+
+        window.addEventListener('load', inicializarPagina);
+    </script>
+</body>
+</html>
+

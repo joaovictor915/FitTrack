@@ -13,6 +13,7 @@ from routes.atividades_refatorada import atividades_bp
 from config import config
 import os
 from datetime import datetime
+# from routes.metas_refatorada import metas_bp
 
 def create_app(config_name='development'):
     """Factory para criar e configurar a aplicação Flask"""
@@ -49,6 +50,7 @@ def create_app(config_name='development'):
     # Registra blueprints (rotas)
     app.register_blueprint(auth_bp)
     app.register_blueprint(atividades_bp)
+    # app.register_blueprint(metas_bp)
     
     # Cria as tabelas do banco de dados
     with app.app_context():
@@ -87,7 +89,14 @@ def create_app(config_name='development'):
                     'atualizar': 'PUT /api/atividades/<id>',
                     'deletar': 'DELETE /api/atividades/<id>',
                     'estatisticas': 'GET /api/atividades/resumo/stats'
-                }
+                },
+                # 'metas': {
+                #     'listar': 'GET /api/metas',
+                #     'obter': 'GET /api/metas/<id>',
+                #     'criar': 'POST /api/metas',
+                #     'atualizar': 'PUT /api/metas/<id>',
+                #     'deletar': 'DELETE /api/metas/<id>'
+                # }
             }
         }), 200
     

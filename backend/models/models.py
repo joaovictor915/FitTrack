@@ -87,3 +87,40 @@ class Atividade(db.Model):
     
     def __repr__(self):
         return f'<Atividade {self.tipo} de {self.usuario_id}>'
+
+
+#  class Meta(db.Model):
+#     """Modelo de Metas de Fitness para o FitTrack"""
+#     __tablename__ = 'metas'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
+    
+#     titulo = db.Column(db.String(100), nullable=False)
+#     tipo = db.Column(db.String(50), nullable=False) # Ex: peso, distancia, duracao, calorias, etc.
+#     valor_alvo = db.Column(db.Float, nullable=False)
+#     progresso_atual = db.Column(db.Float, default=0.0)
+    
+#     data_alvo = db.Column(db.Date) # Data limite para atingir a meta
+#     data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
+#     data_conclusao = db.Column(db.DateTime)
+    
+#     # Rastreamento do progresso pode ser feito através de Atividades
+    
+#     def serialize(self):
+#         """Serializa a meta para JSON"""
+#         return {
+#             'id': self.id,
+#             'usuario_id': self.usuario_id,
+#             'titulo': self.titulo,
+#             'tipo': self.tipo,
+#             'valor_alvo': self.valor_alvo,
+#             'progresso_atual': self.progresso_atual,
+#             'data_alvo': self.data_alvo.isoformat() if self.data_alvo else None,
+#             'data_criacao': self.data_criacao.isoformat() if self.data_criacao else None,
+#             'data_conclusao': self.data_conclusao.isoformat() if self.data_conclusao else None,
+#             'status': 'Concluída' if self.progresso_atual >= self.valor_alvo else 'Em Progresso'
+#         }
+    
+#     def __repr__(self):
+#         return f'<Meta {self.titulo} - Alvo: {self.valor_alvo}>'
